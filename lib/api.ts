@@ -20,10 +20,19 @@ async function fetcher<T>(path: string, revalidate?: number): Promise<T> {
 
   const json = await res.json();
 
-  // Backend currently wraps responses in { data: { success: true, data: <payload> } }
-  // Remove this unwrap once backend is updated to return data directly (per PRD §6a)
-  if (json?.data?.success === true && json?.data?.data !== undefined) {
-    return json.data.data as T;
+  // Unwrap backend envelope — handles both single and double-nested wrapping:
+  // { data: { success, data: <payload> } }  OR
+  // { data: { success, data: { success, data: <payload> } } }
+  let unwrapped = json;
+  while (
+    unwrapped?.data?.success === true &&
+    unwrapped?.data?.data !== undefined
+  ) {
+    unwrapped = unwrapped.data;
+  }
+  // At this point unwrapped.data is the actual payload
+  if (unwrapped?.data !== undefined && unwrapped?.success === true) {
+    return unwrapped.data as T;
   }
 
   return json as T;
