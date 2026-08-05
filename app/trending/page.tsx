@@ -4,7 +4,7 @@ import TrendingTable from '@/components/TrendingTable';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Trending Tokens — Neko Singa',
+  title: 'Trending Tokens | Neko Singa',
   description: 'Top trending crypto tokens by social mentions.',
 };
 
