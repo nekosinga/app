@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Brand Design System: Neko Singa ─────────────────────────── */
+:root {
+  --color-background:    #0A0A0A;
+  --color-surface:       #171310;
+  --color-primary:       #F97316;
+  --color-primary-hover: #EA660A;
+  --color-secondary:     #FCD9A8;
+  --color-border:        #3D2814;
+  --color-text-primary:  #FFFDF7;
+  --color-text-muted:    #A89A88;
+  --color-success:       #22C55E;
+  --color-danger:        #EF4444;
+}
+
+/* ── Reset / Base ─────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: var(--color-background); }
+::-webkit-scrollbar-thumb  {
+  background: var(--color-border);
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+::-webkit-scrollbar-thumb:hover { background: #5a3a1e; }
+
+/* ── Selection ────────────────────────────────────────────────── */
+::selection {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* ── Smooth Transitions ───────────────────────────────────────── */
+a, button {
+  transition: all 0.15s ease;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* ── Focus Rings ──────────────────────────────────────────────── */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ── Input Field Defaults ─────────────────────────────────────── */
+input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+input:focus {
+  outline: none;
+}
+
+/* ── Hover Effects ────────────────────────────────────────────── */
+button:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Loading Skeleton Animation ───────────────────────────────── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
