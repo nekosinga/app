@@ -33,8 +33,8 @@ export default function PrivyProvider({ children }: { children: React.ReactNode 
       config={{
         appearance: {
           theme: 'dark',
-          accentColor: '#7c3aed',
-          logo: '/logo.svg',
+          accentColor: '#F97316',
+          logo: '/nekosinga-logo.png',
         },
         loginMethods: ['wallet', 'email', 'google', 'twitter'],
         embeddedWallets: {

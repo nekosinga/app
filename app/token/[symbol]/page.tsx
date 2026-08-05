@@ -1,9 +1,10 @@
 'use client';
 
-import { use } from 'react';
+import { use, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Sidebar from '@/components/Sidebar';
 import WhatsHappening from '@/components/WhatsHappening';
 import SentimentPanel from '@/components/SentimentPanel';
@@ -14,7 +15,9 @@ interface PageProps {
   params: Promise<{ symbol: string }>;
 }
 
-// Stub OHLC until a real candle endpoint is added
+type Tab = 'Overview' | 'Mentions';
+
+// Stub OHLC — real price endpoint not available yet in free tier
 function generateOhlc(count = 60) {
   let price = 1000 + Math.random() * 9000;
   const now = Math.floor(Date.now() / 1000);
@@ -31,9 +34,43 @@ function generateOhlc(count = 60) {
   });
 }
 
+// Token icon — tries API, falls back to initials
+function TokenIconHeader({ symbol }: { symbol: string }) {
+  const [imgError, setImgError] = useState(false);
+  const { data: iconUrl } = useQuery({
+    queryKey: ['icon', symbol],
+    queryFn: () => api.icon(symbol),
+    staleTime: Infinity,
+    retry: false,
+  });
+
+  if (iconUrl && !imgError) {
+    return (
+      <Image
+        src={iconUrl}
+        alt={symbol}
+        width={36}
+        height={36}
+        className="rounded-full object-cover"
+        onError={() => setImgError(true)}
+      />
+    );
+  }
+
+  return (
+    <div
+      className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+      style={{ background: 'var(--color-primary)', color: '#fff' }}
+    >
+      {symbol.slice(0, 2)}
+    </div>
+  );
+}
+
 export default function TokenPage({ params }: PageProps) {
   const { symbol } = use(params);
   const upper = symbol.toUpperCase();
+  const [activeTab, setActiveTab] = useState<Tab>('Overview');
 
   const { data: trending, isLoading } = useQuery({
     queryKey: ['trending'],
@@ -44,6 +81,8 @@ export default function TokenPage({ params }: PageProps) {
   const isUp = (token?.change_percent ?? 0) >= 0;
   const chartData = generateOhlc();
 
+  const TABS: Tab[] = ['Overview', 'Mentions'];
+
   return (
     <div className="flex" style={{ background: 'var(--color-background)' }}>
       <Sidebar />
@@ -52,37 +91,33 @@ export default function TokenPage({ params }: PageProps) {
         {/* Token header bar */}
         {!isLoading && token && (
           <div
-            className="flex items-center gap-6 px-6 py-3 border-b"
+            className="flex flex-wrap items-center gap-6 px-6 py-3 border-b"
             style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
           >
-            {/* Badge */}
             <div className="flex items-center gap-3">
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold"
-                style={{ background: 'var(--color-primary)', color: '#fff' }}
-              >
-                {upper.slice(0, 2)}
-              </div>
+              <TokenIconHeader symbol={symbol} />
               <div>
                 <p className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>
                   {upper} / USDC
                 </p>
                 <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                  Social mentions
+                  Social mentions tracker
                 </p>
               </div>
             </div>
 
-            {/* Stats */}
             {[
               { label: 'Mentions', value: token.current_count.toLocaleString() },
-              { label: 'Prev', value: token.previous_count.toLocaleString() },
+              { label: 'Prev Period', value: token.previous_count.toLocaleString() },
             ].map(({ label, value }) => (
               <div key={label}>
                 <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{label}</p>
-                <p className="text-sm font-semibold font-mono" style={{ color: 'var(--color-text-primary)' }}>{value}</p>
+                <p className="text-sm font-semibold font-mono" style={{ color: 'var(--color-text-primary)' }}>
+                  {value}
+                </p>
               </div>
             ))}
+
             <div>
               <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Change</p>
               <p
@@ -104,37 +139,49 @@ export default function TokenPage({ params }: PageProps) {
             <span style={{ color: 'var(--color-text-primary)' }}>{upper}</span>
           </div>
 
-          {/* Chart tabs */}
-          <div>
+          {/* Tabs + content */}
+          <div
+            className="rounded-lg overflow-hidden"
+            style={{ border: '1px solid var(--color-border)' }}
+          >
+            {/* Tab bar */}
             <div
-              className="flex gap-4 px-4 py-3 border-b"
-              style={{
-                background: 'var(--color-surface)',
-                borderColor: 'var(--color-border)',
-                borderTopLeftRadius: '8px',
-                borderTopRightRadius: '8px',
-              }}
+              className="flex gap-1 px-4 py-2 border-b"
+              style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
             >
-              {['Overview', 'Mentions', 'Sentiment', 'Alerts'].map((tab) => (
+              {TABS.map((tab) => (
                 <button
                   key={tab}
-                  className="text-sm"
+                  onClick={() => setActiveTab(tab)}
+                  className="px-3 py-1.5 rounded text-sm transition-colors"
                   style={{
-                    color: tab === 'Overview' ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
-                    fontWeight: tab === 'Overview' ? 600 : 400,
-                    borderBottom: tab === 'Overview' ? '2px solid var(--color-primary)' : '2px solid transparent',
-                    paddingBottom: '4px',
+                    background: activeTab === tab ? 'var(--color-primary)' : 'transparent',
+                    color: activeTab === tab ? '#fff' : 'var(--color-text-muted)',
+                    fontWeight: activeTab === tab ? 600 : 400,
                   }}
                 >
                   {tab}
                 </button>
               ))}
             </div>
-            <TokenChart data={chartData} symbol={upper} />
+
+            {/* Overview: chart */}
+            {activeTab === 'Overview' && (
+              <TokenChart data={chartData} symbol={upper} />
+            )}
+
+            {/* Mentions: sentiment panel */}
+            {activeTab === 'Mentions' && (
+              <div style={{ background: 'var(--color-background)' }}>
+                <SentimentPanel symbol={upper} />
+              </div>
+            )}
           </div>
 
-          {/* Sentiment */}
-          <SentimentPanel symbol={upper} />
+          {/* Always show sentiment summary below chart in Overview */}
+          {activeTab === 'Overview' && (
+            <SentimentPanel symbol={upper} />
+          )}
         </div>
       </main>
 

@@ -7,10 +7,11 @@ class ApiError extends Error {
   }
 }
 
-async function fetcher<T>(path: string, options?: RequestInit): Promise<T> {
+async function fetcher<T>(path: string, revalidate?: number): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: { 'Content-Type': 'application/json' },
-    ...options,
+    // Next.js server-side cache — aligned with Redis TTL on backend
+    ...(revalidate !== undefined ? { next: { revalidate } } : {}),
   });
 
   if (!res.ok) {
@@ -19,7 +20,8 @@ async function fetcher<T>(path: string, options?: RequestInit): Promise<T> {
 
   const json = await res.json();
 
-  // Backend wraps all responses in { data: { success: true, data: <payload> } }
+  // Backend currently wraps responses in { data: { success: true, data: <payload> } }
+  // Remove this unwrap once backend is updated to return data directly (per PRD §6a)
   if (json?.data?.success === true && json?.data?.data !== undefined) {
     return json.data.data as T;
   }
@@ -27,17 +29,15 @@ async function fetcher<T>(path: string, options?: RequestInit): Promise<T> {
   return json as T;
 }
 
-// ---------- Types (matching actual API shape) ----------
+// ---------- Types ----------
 
-/** Single trending token from /api/market/trending */
 export interface TrendingToken {
-  token: string;           // e.g. "btc"
+  token: string;
   current_count: number;
   previous_count: number;
   change_percent: number;
 }
 
-/** Paginated trending response (after unwrap = TrendingPaginated) */
 export interface TrendingPaginated {
   total: number;
   page: number;
@@ -45,7 +45,14 @@ export interface TrendingPaginated {
   data: TrendingToken[];
 }
 
-/** Single mention/tweet from /api/market/news or /api/market/sentiment/:token */
+/** Contract address entry from /api/market/trending-cas */
+export interface TrendingCA {
+  address: string;
+  symbol: string;
+  mentions: number;
+  change_percent: number;
+}
+
 export interface MentionItem {
   tweetId: string;
   link: string;
@@ -74,21 +81,25 @@ export interface HealthResponse {
 }
 
 // ---------- Endpoints ----------
+// revalidate values aligned with Redis TTL in backend (api repo)
 
 export const api = {
   health: () =>
     fetcher<HealthResponse>('/api/health'),
 
   trending: () =>
-    fetcher<TrendingPaginated>('/api/market/trending'),
+    fetcher<TrendingPaginated>('/api/market/trending', 1800),
+
+  trendingCAs: () =>
+    fetcher<TrendingCA[]>('/api/market/trending-cas', 1800),
 
   sentiment: (token: string) =>
-    fetcher<MentionItem[]>(`/api/market/sentiment/${token.toUpperCase()}`),
+    fetcher<MentionItem[]>(`/api/market/sentiment/${token.toUpperCase()}`, 900),
 
   news: (limit = 10) =>
-    fetcher<MentionItem[]>(`/api/market/news?limit=${limit}`),
+    fetcher<MentionItem[]>(`/api/market/news?limit=${limit}`, 1800),
 
-  /** Returns icon URL string or null if not found */
+  /** Returns icon URL string or null if symbol not found in CoinGecko */
   icon: (symbol: string) =>
-    fetcher<string | null>(`/api/market/icon/${symbol.toLowerCase()}`),
+    fetcher<string | null>(`/api/market/icon/${symbol.toLowerCase()}`, 86400),
 };
