@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
@@ -44,17 +44,14 @@ function ChangeCell({ value }: { value: number }) {
 
 // --- Token icon with API fallback ---
 function TokenIcon({ symbol }: { symbol: string }) {
-  const [iconUrl, setIconUrl] = useState<string | null | undefined>(undefined);
+  const [imgError, setImgError] = useState(false);
 
-  // Fetch icon from backend on mount
-  useQuery({
+  const { data: iconUrl } = useQuery({
     queryKey: ['icon', symbol],
     queryFn: () => api.icon(symbol),
     staleTime: Infinity,
     retry: false,
-    onSuccess: (url) => setIconUrl(url),
-    onError: () => setIconUrl(null),
-  } as Parameters<typeof useQuery>[0]);
+  });
 
   const fallback = (
     <span className="text-xs font-bold" style={{ color: '#fff' }}>
@@ -67,7 +64,7 @@ function TokenIcon({ symbol }: { symbol: string }) {
       className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
       style={{ background: 'var(--color-primary)', color: '#fff' }}
     >
-      {iconUrl ? (
+      {iconUrl && !imgError ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={iconUrl}
@@ -75,7 +72,7 @@ function TokenIcon({ symbol }: { symbol: string }) {
           width={32}
           height={32}
           className="w-full h-full object-cover"
-          onError={() => setIconUrl(null)}
+          onError={() => setImgError(true)}
         />
       ) : fallback}
     </div>
@@ -89,7 +86,6 @@ function mindshare(current: number, total: number) {
 }
 
 // --- Time label ---
-const [lastUpdate, setLastUpdate] = [Date.now(), (t: number) => t];
 
 export default function TrendingTable({ limit }: { limit?: number }) {
   const [updatedAt, setUpdatedAt] = useState<number>(0);
@@ -98,8 +94,11 @@ export default function TrendingTable({ limit }: { limit?: number }) {
     queryKey: ['trending'],
     queryFn: api.trending,
     refetchInterval: 60_000,
-    onSuccess: () => setUpdatedAt(Date.now()),
-  } as Parameters<typeof useQuery>[0]);
+  });
+
+  useEffect(() => {
+    if (data) setUpdatedAt(Date.now());
+  }, [data]);
 
   const rows: TrendingToken[] = limit
     ? (data?.data ?? []).slice(0, limit)
