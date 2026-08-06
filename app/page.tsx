@@ -54,7 +54,7 @@ function Card({ children, accent = false }: { children: React.ReactNode; accent?
       onMouseLeave={() => setHovered(false)}
       style={{
         background: 'var(--color-surface)',
-        border: accent && hovered ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+        border: hovered ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
         height: '360px',
       }}>
       {children}
@@ -283,7 +283,7 @@ function TokenIntelligenceCard() {
   const maxBar = Math.max(...bars, 1);
 
   return (
-    <Card accent>
+    <Card>
       <CardHeader
         title="Token Intelligence"
         subtitle="Zoom into any token."
