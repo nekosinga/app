@@ -6,19 +6,21 @@ import { usePathname } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { useAccount, useBalance } from 'wagmi';
 import {
-  LayoutDashboard,
-  TrendingUp,
-  Activity,
-  Newspaper,
+  BarChart2,
+  Flame,
+  MessageCircle,
+  Rss,
   Wallet,
   LogOut,
+  Github,
+  BookOpen,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/trending', label: 'Trending', icon: TrendingUp },
-  { href: '/sentiment', label: 'Sentiment', icon: Activity },
-  { href: '/news', label: 'News', icon: Newspaper },
+  { href: '/', label: 'Dashboard', icon: BarChart2 },
+  { href: '/trending', label: 'Trending', icon: Flame },
+  { href: '/sentiment', label: 'Sentiment', icon: MessageCircle },
+  { href: '/news', label: 'News', icon: Rss },
 ];
 
 export default function Sidebar() {
@@ -77,10 +79,13 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Connect Wallet */}
-      <div className="px-3 pb-4 space-y-2">
+      {/* Connect Wallet + Footer */}
+      <div className="px-3 pb-4">
+        {/* Separator */}
+        <div className="mb-3" style={{ borderTop: '1px solid var(--color-border)' }} />
+
         {ready && authenticated && address ? (
-          <>
+          <div className="space-y-2 mb-3">
             <div
               className="rounded-lg p-3 space-y-1"
               style={{ background: 'var(--color-background)', border: '1px solid var(--color-border)' }}
@@ -105,12 +110,12 @@ export default function Sidebar() {
               <LogOut size={12} />
               Disconnect
             </button>
-          </>
+          </div>
         ) : (
           <button
             onClick={login}
             disabled={!ready}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-40"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-40 mb-3"
             style={{ background: 'var(--color-primary)', color: '#fff' }}
           >
             <Wallet size={14} />
@@ -118,32 +123,33 @@ export default function Sidebar() {
           </button>
         )}
 
-        <div className="pt-2 flex flex-col items-center gap-2">
-          <div className="flex items-center gap-3">
-            <a
-              href="https://github.com/nekosinga"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs transition-opacity hover:opacity-75"
-              style={{ color: 'var(--color-text-muted)' }}
-            >
-              GitHub
-            </a>
-            <span style={{ color: 'var(--color-border)' }}>·</span>
-            <a
-              href="https://docs-nekosinga.vercel.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs transition-opacity hover:opacity-75"
-              style={{ color: 'var(--color-text-muted)' }}
-            >
-              Docs
-            </a>
-          </div>
-          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            © {new Date().getFullYear()} NekoSinga
-          </p>
+        {/* Footer links */}
+        <div className="flex items-center justify-center gap-4 mb-1.5">
+          <a
+            href="https://github.com/nekosinga"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-xs transition-opacity hover:opacity-75"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            <Github size={11} />
+            GitHub
+          </a>
+          <span style={{ color: 'var(--color-border)' }}>·</span>
+          <a
+            href="https://docs-nekosinga.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-xs transition-opacity hover:opacity-75"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            <BookOpen size={11} />
+            Docs
+          </a>
         </div>
+        <p className="text-xs text-center" style={{ color: 'var(--color-text-muted)' }}>
+          © {new Date().getFullYear()} NekoSinga
+        </p>
       </div>
     </aside>
   );
