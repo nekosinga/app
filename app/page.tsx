@@ -47,12 +47,15 @@ function TokenIcon({ symbol, size = 28 }: { symbol: string; size?: number }) {
 
 // ── Card shell ────────────────────────────────────────────────
 function Card({ children, accent = false }: { children: React.ReactNode; accent?: boolean }) {
+  const [hovered, setHovered] = useState(false);
   return (
-    <div className="rounded-2xl p-6 flex flex-col gap-5"
+    <div className="rounded-2xl p-6 flex flex-col gap-5 transition-all"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         background: 'var(--color-surface)',
-        border: accent ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-        height: '360px',        // fixed height so 2×2 grid is perfectly uniform
+        border: accent && hovered ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+        height: '360px',
       }}>
       {children}
     </div>
