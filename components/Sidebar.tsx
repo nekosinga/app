@@ -12,7 +12,7 @@ import {
   Rss,
   Wallet,
   LogOut,
-  Github,
+  GitFork,
   BookOpen,
 } from 'lucide-react';
 
@@ -132,7 +132,7 @@ export default function Sidebar() {
             className="flex items-center gap-1 text-xs transition-opacity hover:opacity-75"
             style={{ color: 'var(--color-text-muted)' }}
           >
-            <Github size={11} />
+            <GitFork size={11} />
             GitHub
           </a>
           <span style={{ color: 'var(--color-border)' }}>·</span>

@@ -90,7 +90,7 @@ function mindshare(current: number, total: number) {
 
 // --- Time label ---
 
-export default function TrendingTable({ limit }: { limit?: number }) {
+export default function TrendingTable({ limit, search }: { limit?: number; search?: string }) {
   const [updatedAt, setUpdatedAt] = useState<number>(0);
 
   const { data, isLoading, error, refetch } = useQuery({
@@ -103,9 +103,14 @@ export default function TrendingTable({ limit }: { limit?: number }) {
     if (data) setUpdatedAt(Date.now());
   }, [data]);
 
-  const rows: TrendingToken[] = limit
+  const allRows: TrendingToken[] = limit
     ? (data?.data ?? []).slice(0, limit)
     : (data?.data ?? []);
+
+  // Filter by search query (case-insensitive match on token symbol)
+  const rows: TrendingToken[] = search
+    ? allRows.filter(t => t.token.toLowerCase().includes(search.toLowerCase()))
+    : allRows;
 
   const totalMentions = rows.reduce((s, t) => s + t.current_count, 0);
 

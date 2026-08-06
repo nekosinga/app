@@ -376,21 +376,6 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* Search bar */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl"
-            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-            <span style={{ color: 'var(--color-text-muted)' }}>🔍</span>
-            <input type="text" placeholder="Search markets, tokens, or trends"
-              className="flex-1 bg-transparent outline-none text-sm"
-              style={{ color: 'var(--color-text-primary)' }} />
-            <kbd className="px-2 py-0.5 rounded text-xs font-mono"
-              style={{ background: 'var(--color-background)', color: 'var(--color-text-muted)' }}>
-              /
-            </kbd>
-          </div>
-        </div>
-
         {/* 2×2 uniform grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <TrendingCard />
