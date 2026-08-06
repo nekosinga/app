@@ -277,7 +277,7 @@ function NewsCard() {
 
 // ── Token Intelligence ────────────────────────────────────────
 function TokenIntelligenceCard() {
-  const { data } = useQuery({ queryKey: ['trending'], queryFn: api.trending, staleTime: 60_000 });
+  const { data, isLoading } = useQuery({ queryKey: ['trending'], queryFn: api.trending, staleTime: 60_000 });
   const top  = data?.data?.[0];
   const bars = (data?.data ?? []).slice(0, 7).map(t => t.current_count);
   const maxBar = Math.max(...bars, 1);
@@ -289,11 +289,14 @@ function TokenIntelligenceCard() {
         subtitle="Zoom into any token."
         body="Open a token profile to see price, movement, mentions, and social signals." />
 
-      <InnerPanel>
-        {top ? (
-          <div className="p-4 flex flex-col gap-3 h-full">
+      <div className="rounded-xl flex-1"
+        style={{ background: 'var(--color-background)', border: '1px solid var(--color-border)', overflow: 'hidden', minHeight: 0 }}>
+        {isLoading ? (
+          <div className="h-full animate-pulse m-3 rounded-lg" style={{ background: 'var(--color-surface)' }} />
+        ) : top ? (
+          <div className="p-4 h-full flex flex-col gap-3">
             {/* Token row */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <TokenIcon symbol={top.token} size={26} />
                 <span className="font-bold text-sm" style={{ color: 'var(--color-text-primary)' }}>
@@ -307,17 +310,17 @@ function TokenIntelligenceCard() {
             </div>
 
             {/* Mini stats */}
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-2 gap-2 shrink-0">
               <div className="rounded-lg p-2.5" style={{ background: 'var(--color-surface)' }}>
-                <p style={{ color: 'var(--color-text-muted)' }}>24h Change</p>
-                <p className="font-bold font-mono mt-0.5"
+                <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>24h Change</p>
+                <p className="text-sm font-bold font-mono mt-0.5"
                   style={{ color: top.change_percent >= 0 ? 'var(--color-success)' : 'var(--color-danger)' }}>
                   {top.change_percent >= 0 ? '+' : ''}{top.change_percent.toFixed(1)}%
                 </p>
               </div>
               <div className="rounded-lg p-2.5" style={{ background: 'var(--color-surface)' }}>
-                <p style={{ color: 'var(--color-text-muted)' }}>Mentions</p>
-                <p className="font-bold font-mono mt-0.5" style={{ color: 'var(--color-text-primary)' }}>
+                <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Mentions</p>
+                <p className="text-sm font-bold font-mono mt-0.5" style={{ color: 'var(--color-text-primary)' }}>
                   {fmt(top.current_count)}
                 </p>
               </div>
@@ -325,8 +328,8 @@ function TokenIntelligenceCard() {
 
             {/* Bar chart */}
             <div className="flex-1 flex flex-col justify-end">
-              <p className="text-xs mb-1.5" style={{ color: 'var(--color-text-muted)' }}>Social Activity</p>
-              <div className="flex items-end gap-1 h-10">
+              <p className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>Social Activity</p>
+              <div className="flex items-end gap-1" style={{ height: '40px' }}>
                 {bars.map((v, i) => (
                   <div key={i} className="flex-1 rounded-sm"
                     style={{
@@ -340,9 +343,12 @@ function TokenIntelligenceCard() {
             </div>
           </div>
         ) : (
-          <div className="h-full animate-pulse m-3 rounded-lg" style={{ background: 'var(--color-surface)' }} />
+          <div className="flex items-center justify-center h-full text-sm"
+            style={{ color: 'var(--color-text-muted)' }}>
+            No data available
+          </div>
         )}
-      </InnerPanel>
+      </div>
 
       <Link href={`/token/${top?.token ?? 'btc'}`}
         className="flex items-center gap-1 text-xs font-semibold shrink-0"
