@@ -46,7 +46,7 @@ function ChangeCell({ value }: { value: number }) {
 function TokenIcon({ symbol }: { symbol: string }) {
   const [imgError, setImgError] = useState(false);
 
-  const { data: iconUrl } = useQuery({
+  const { data: iconUrl, isSuccess } = useQuery({
     queryKey: ['icon', symbol],
     queryFn: () => api.icon(symbol),
     staleTime: Infinity,
@@ -59,19 +59,22 @@ function TokenIcon({ symbol }: { symbol: string }) {
     </span>
   );
 
+  // Show fallback while loading or if no icon / img load error
+  const showIcon = isSuccess && iconUrl && !imgError;
+
   return (
     <div
       className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden"
-      style={{ background: 'var(--color-primary)', color: '#fff' }}
+      style={{ background: showIcon ? 'transparent' : 'var(--color-primary)', color: '#fff' }}
     >
-      {iconUrl && !imgError ? (
+      {showIcon ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={iconUrl}
           alt={symbol}
           width={32}
           height={32}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover rounded-full"
           onError={() => setImgError(true)}
         />
       ) : fallback}

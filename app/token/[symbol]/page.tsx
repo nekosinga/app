@@ -4,7 +4,6 @@ import { use, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import Sidebar from '@/components/Sidebar';
 import WhatsHappening from '@/components/WhatsHappening';
 import SentimentPanel from '@/components/SentimentPanel';
@@ -37,21 +36,22 @@ function generateOhlc(count = 60) {
 // Token icon — tries API, falls back to initials
 function TokenIconHeader({ symbol }: { symbol: string }) {
   const [imgError, setImgError] = useState(false);
-  const { data: iconUrl } = useQuery({
+  const { data: iconUrl, isSuccess } = useQuery({
     queryKey: ['icon', symbol],
     queryFn: () => api.icon(symbol),
     staleTime: Infinity,
     retry: false,
   });
 
-  if (iconUrl && !imgError) {
+  if (isSuccess && iconUrl && !imgError) {
     return (
-      <Image
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
         src={iconUrl}
         alt={symbol}
         width={36}
         height={36}
-        className="rounded-full object-cover"
+        className="rounded-full object-cover w-9 h-9"
         onError={() => setImgError(true)}
       />
     );
