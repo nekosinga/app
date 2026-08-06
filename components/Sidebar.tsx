@@ -118,9 +118,32 @@ export default function Sidebar() {
           </button>
         )}
 
-        <p className="text-xs text-center pt-2" style={{ color: 'var(--color-text-muted)' }}>
-          © 2025 NekoSinga
-        </p>
+        <div className="pt-2 flex flex-col items-center gap-2">
+          <div className="flex items-center gap-3">
+            <a
+              href="https://github.com/nekosinga"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs transition-opacity hover:opacity-75"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              GitHub
+            </a>
+            <span style={{ color: 'var(--color-border)' }}>·</span>
+            <a
+              href="https://docs-nekosinga.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs transition-opacity hover:opacity-75"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              Docs
+            </a>
+          </div>
+          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+            © {new Date().getFullYear()} NekoSinga
+          </p>
+        </div>
       </div>
     </aside>
   );
