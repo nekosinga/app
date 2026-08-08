@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import PrivyProvider from '@/components/PrivyProvider';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   title: 'Neko Singa | Crypto Market Intelligence',
@@ -14,6 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PrivyProvider>
           {children}
         </PrivyProvider>
+        <Analytics />
       </body>
     </html>
   );
